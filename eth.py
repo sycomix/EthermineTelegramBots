@@ -58,8 +58,9 @@ try:
     # this list contains user_id of user that are allowed to get response from the bot
     ALLOWEDUSERID = env('ALLOWEDUSERID', cast=list, subcast=int)
 except:
-    logger.error("Error reading environment variables from: {}".format(
-        os.path.abspath(settings)))
+    logger.error(
+        f"Error reading environment variables from: {os.path.abspath(settings)}"
+    )
 
 
 # ========================================================================
@@ -80,14 +81,11 @@ def checkWorkers(bot, job):
             reportedHash = 0
 
         if activeWorkers < WNUM or reportedHash < RHASH:
-            toSend = "WARNING: \n" \
-                     "Active Workers: {} \n" \
-                     "Reported HashRate: {}".format(
-                activeWorkers, reportedHash)
+            toSend = f"WARNING: \nActive Workers: {activeWorkers} \nReported HashRate: {reportedHash}"
             for usr in ALLOWEDUSERID:
                 bot.send_message(usr, text=toSend)
     else:
-        toSend = "Unable to reach Ethermine: {}".format(res.reason)
+        toSend = f"Unable to reach Ethermine: {res.reason}"
         for usr in ALLOWEDUSERID:
             bot.send_message(usr, text=toSend)
 
@@ -101,16 +99,15 @@ def status(bot, update):
         if res.status == 200:
             buf = json.loads(res.read().decode("utf-8"))
             aus = buf['minerStats']
-            toSend = "Addr: {}\nHash: {}\nreportedHash: {}\nnWorkers: {}\nShares (v/s/i): {}/{}/{}".format(
-                buf['address'], buf['hashRate'], buf['reportedHashRate'], aus['activeWorkers'], aus['validShares'],
-                aus['staleShares'], aus['invalidShares'])
+            toSend = f"Addr: {buf['address']}\nHash: {buf['hashRate']}\nreportedHash: {buf['reportedHashRate']}\nnWorkers: {aus['activeWorkers']}\nShares (v/s/i): {aus['validShares']}/{aus['staleShares']}/{aus['invalidShares']}"
         else:
-            toSend = "Unable to reach Ethermine: {}".format(res.reason)
+            toSend = f"Unable to reach Ethermine: {res.reason}"
         update.message.reply_text(toSend)
         conn.close()
     else:
-        logger.info("{} tried to contact me (comm: {})".format(
-            update.message.from_user, update.message.text))
+        logger.info(
+            f"{update.message.from_user} tried to contact me (comm: {update.message.text})"
+        )
 
 
 def workers(bot, update):
@@ -124,16 +121,15 @@ def workers(bot, update):
             w = buf['workers']
             for iterator in w:
                 buf = w[iterator]
-                toSend += "Worker {}\nHash: {}\nreportedHash: {}\nShares (v/s/i): {}/{}/{}\nLastShare: {}\n\n".format(
-                    buf['worker'], buf['hashrate'], buf['reportedHashRate'], buf['validShares'], buf['staleShares'],
-                    buf['invalidShares'], time.strftime("%d/%m/%y %H:%M", time.localtime(buf['workerLastSubmitTime'])))
+                toSend += f"""Worker {buf['worker']}\nHash: {buf['hashrate']}\nreportedHash: {buf['reportedHashRate']}\nShares (v/s/i): {buf['validShares']}/{buf['staleShares']}/{buf['invalidShares']}\nLastShare: {time.strftime("%d/%m/%y %H:%M", time.localtime(buf['workerLastSubmitTime']))}\n\n"""
         else:
-            toSend = "Unable to reach Ethermine: {}".format(res.reason)
+            toSend = f"Unable to reach Ethermine: {res.reason}"
         update.message.reply_text(toSend)
         conn.close()
     else:
-        logger.info("{} tried to contact me (comm: {})".format(
-            update.message.from_user, update.message.text))
+        logger.info(
+            f"{update.message.from_user} tried to contact me (comm: {update.message.text})"
+        )
 
 
 def help(bot, update):
@@ -141,20 +137,22 @@ def help(bot, update):
         toSend = "Command List\n/status - general info\n/workers - list workers\n/help - print this :D\nNOTE: this bot automatically checks for workers crash!"
         update.message.reply_text(toSend)
     else:
-        logger.info("{} tried to contact me (comm: {})".format(
-            update.message.from_user, update.message.text))
+        logger.info(
+            f"{update.message.from_user} tried to contact me (comm: {update.message.text})"
+        )
 
 
 def ping(bot, update):
     if update.message.chat_id in ALLOWEDUSERID:
         update.message.reply_text("pong")
     else:
-        logger.info("{} tried to contact me (comm: {})".format(
-            update.message.from_user, update.message.text))
+        logger.info(
+            f"{update.message.from_user} tried to contact me (comm: {update.message.text})"
+        )
 
 
 def error(bot, update, error):
-    logger.warn('Update "%s" caused error "%s"' % (update, error))
+    logger.warn(f'Update "{update}" caused error "{error}"')
 
 
 def main():
